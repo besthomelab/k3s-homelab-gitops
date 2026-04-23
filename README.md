@@ -43,7 +43,7 @@
 当你克隆、下载或参考本仓库，并准备在自己的集群中部署需要密码的应用（如数据库、管理面板）时，请执行以下“换牌”操作：
 
 ### 3.1 前置环境检查
-1. 确保你的 K3s 集群中已成功部署 [sealed-secrets-controller](https://besthomelab.tech/cluster/argocd#-进阶防线gitops-下的密码管理法则)。
+1. 确保你的 K3s 集群中已成功部署 [sealed-secrets-controller](https://besthomelab.tech/cluster/sealed-secrets/)。
 2. 确保你操作的本地电脑已安装 `kubeseal` 命令行工具，并且能够连接到你的集群。
 
 ### 3.2 替换密码工作流 (操作指南)
