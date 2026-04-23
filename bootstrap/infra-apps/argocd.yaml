@@ -16,7 +16,7 @@ spec:
     # 🎯 重点：让 ArgoCD 盯着咱们的 Git 仓库
     repoURL: 'https://github.com/besthomelab/k3s-homelab-gitops.git'
     targetRevision: HEAD
-    # 锁定到咱们刚刚放 argocd配置yaml 的地方
+    # 锁定到 argocd配置yaml 的地方
     path: infrastructure/argocd
 
   # =======================================================================
