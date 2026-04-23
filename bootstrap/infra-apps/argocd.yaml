@@ -18,8 +18,6 @@ spec:
     targetRevision: HEAD
     # 锁定到咱们刚刚放 argocd配置yaml 的地方
     path: infrastructure/argocd
-    directory:
-      exclude: '*template*'
 
   # =======================================================================
   # 🎯 监工执法手册：自我管理必须开启全自动
