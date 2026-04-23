@@ -1,0 +1,48 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: nfs-provisioner
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: kube-system  # 官方推荐装在 kube-system 园区
+  
+  sources:
+    # --- 源 1：官方 Helm 图纸骨架 ---
+    - repoURL: 'https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner/'
+      chart: nfs-subdir-external-provisioner
+      targetRevision: 4.0.18
+      helm:
+        valueFiles:
+          - $values/infrastructure/nfs-provisioner/values.yaml
+
+    # --- 源 2：赛博堡垒私有 Git 参数库 ---
+    - repoURL: 'https://github.com/besthomelab/k3s-homelab-gitops.git'
+      targetRevision: HEAD
+      path: infrastructure/nfs-provisioner
+      ref: values
+
+  # =======================================================================
+  # 🎯 赛博监工执法手册 (基础设施：全自动挡)
+  # =======================================================================
+  syncPolicy:
+    automated:
+      enabled: true      # 【总开关】基础设施，开启全自动驾驶
+      prune: true        # 【自动拆除】Git 删则 K8s 删
+      selfHeal: true     # 【自我修复】严禁任何人手动篡改水管配置
+      allowEmpty: false  # 【核爆保护】
+    
+    syncOptions:
+      - CreateNamespace=true
+
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
+      refresh: true

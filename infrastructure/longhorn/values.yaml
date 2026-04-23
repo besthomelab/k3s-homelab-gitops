@@ -1,0 +1,18 @@
+# -------------------------------------------------------------------------
+# 💾 赛博堡垒：Longhorn 分布式存储大坝
+# -------------------------------------------------------------------------
+defaultSettings:
+  # 【核心策略】默认 3 副本，完美匹配 3 节点高可用物理集群
+  defaultReplicaCount: 3
+  # 【硬盘防爆】宿主机物理硬盘剩余空间低于 15% 时强制停止写入，防止节点瘫痪
+  storageMinimalAvailablePercentage: 15
+  # 【静默运行】关闭自带的升级检查，所有版本升降级统一交由 GitOps/ArgoCD 掌管
+  upgradeChecker: false
+
+service:
+  ui:
+    # 🎯 召唤底层 Cilium L2 负载均衡器
+    type: LoadBalancer
+    annotations:
+      # 使用 Cilium 专属注解指定固定 IP，完美符合 K8s 1.24+ 最新规范
+      io.cilium/lb-ipam-ips: "10.0.10.52"  # REPLACE_ME -> 替换为你局域网中规划的可用 IP

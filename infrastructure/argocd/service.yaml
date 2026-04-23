@@ -1,0 +1,22 @@
+# infrastructure/argocd/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: argocd-server
+  namespace: argocd
+spec:
+  type: LoadBalancer
+  # 🎯 赛博靓号：固定住 10.0.10.53，以后重装也不会变
+  loadBalancerIP: 10.0.10.53 # REPLACE_ME  替换为你规划的ip地址
+  ports:
+  - name: http
+    port: 80
+    protocol: TCP
+    targetPort: 8080
+  - name: https
+    port: 443
+    protocol: TCP
+    targetPort: 8080
+  selector:
+    # 锁定 ArgoCD UI 服务的标签
+    app.kubernetes.io/name: argocd-server

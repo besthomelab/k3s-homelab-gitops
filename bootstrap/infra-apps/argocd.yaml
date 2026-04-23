@@ -1,0 +1,45 @@
+# bootstrap/infra-apps/argocd.yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: argocd-self-managed
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: argocd
+  
+  source:
+    # 🎯 重点：让 ArgoCD 盯着咱们的 Git 仓库
+    repoURL: 'https://github.com/besthomelab/k3s-homelab-gitops.git'
+    targetRevision: HEAD
+    # 锁定到咱们刚刚放 argocd配置yaml 的地方
+    path: infrastructure/argocd
+    directory:
+      exclude: '*template*'
+
+  # =======================================================================
+  # 🎯 监工执法手册：自我管理必须开启全自动
+  # =======================================================================
+  syncPolicy:
+    automated:
+      enabled: true      # 必须开启，实现配置漂移自动修正
+      prune: true        
+      selfHeal: true     # 严禁任何人手动去 kubectl edit service
+      allowEmpty: false  
+    
+    syncOptions:
+      - CreateNamespace=true
+      # 处理官方 install.yaml 中超大资源必备
+      - ServerSideApply=true
+
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
+      refresh: true

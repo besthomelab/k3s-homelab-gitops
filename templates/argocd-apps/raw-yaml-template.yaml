@@ -1,0 +1,40 @@
+# -------------------------------------------------------------------------
+# 🛠️ 赛博堡垒万能模版：纯 YAML 静态清单部署
+# 适用场景：没有 Helm，完全由自己手写 Deployment、Service、Ingress 的纯粹应用
+# -------------------------------------------------------------------------
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: <APP_NAME>                 # [必填] 替换为你的应用名称
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: <TARGET_NAMESPACE>  # [必填] 替换为应用实际运行的命名空间
+  
+  source:
+    repoURL: 'https://github.com/besthomelab/k3s-homelab-gitops.git'
+    targetRevision: HEAD
+    path: <PATH_TO_APP_DIR>        # [必填] 替换为存放你手写 YAML 文件的本地文件夹路径
+    directory:
+        # 🎯 赛博过滤网：排除所有包含 template 的文件（如 secret.template.yaml）
+        # 确保 ArgoCD 只加载加密后的 secret.yaml 和自定义 Service 等资源
+        exclude: '*template*'
+        
+  # =======================================================================
+  # 🎯 赛博监工执法手册 (Sync Policy)
+  # =======================================================================
+  syncPolicy:
+    automated:
+      enabled: false     # 【总开关】false = 必须在 UI 界面手动点击 SYNC 按钮；true = 纯自动驾驶 (适合基础组件)
+      prune: true        # 【自动拆除】如果 Git 里删除了该文件，K8s 现场是否自动销毁对应资源？
+      selfHeal: false    # 【反篡改/自我修复】若有人用 kubectl 偷偷改了现场配置，是否强行覆盖回 Git 的状态？
+      allowEmpty: false  # 【核爆保护】防呆机制。若不小心清空了 Git 目录，是否允许把 K8s 现场也夷为平地？
+    
+    syncOptions:
+      - CreateNamespace=true        # 【基建包办】如果指定的 namespace 不存在，自动建一个。
+      # - ServerSideApply=true      # 【服务端下发】当部署巨型应用报错时开启。
+      # - PruneLast=true            # 【平滑过渡】先建新版本，再删老版本。

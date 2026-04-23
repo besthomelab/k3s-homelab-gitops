@@ -1,0 +1,12 @@
+# infrastructure/argocd/kustomization.yaml
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# 🎯 远程引用：直接指向官方稳定版的远程图纸
+resources:
+  - https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+  # 🎯 本地叠加：把你博客里的那个 LB 服务也包含进来
+  - service.yaml
+
+# (可选) 如果你想改名字或者加标签，可以在这里统一处理
+# namespace: argocd

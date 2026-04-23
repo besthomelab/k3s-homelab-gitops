@@ -1,0 +1,22 @@
+# -------------------------------------------------------------------------
+# 💧 赛博堡垒：NFS 动态存储供应器 (大容量外接水库)
+# -------------------------------------------------------------------------
+nfs:
+  # ⚠️ 必须修改为你实际物理 NAS 的情报
+  server: 10.0.0.50       # REPLACE_ME -> 替换为你的 TrueNAS/群晖 IP 地址
+  path: /mnt/nfs          # REPLACE_ME -> 替换为 NAS 上暴露的绝对共享路径
+
+storageClass:
+  name: nfs-client
+  # 强烈建议填 false，默认存储依然留给高性能的 Longhorn
+  defaultClass: false
+  # 💡 核心防爆机制：删除 PVC 时，不要彻底删除 NAS 上的数据，而是重命名归档 (Archived)
+  archiveOnDelete: true
+
+resources:
+  limits:
+    cpu: 100m
+    memory: 128Mi
+  requests:
+    cpu: 10m
+    memory: 64Mi

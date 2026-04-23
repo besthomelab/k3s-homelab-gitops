@@ -1,0 +1,67 @@
+# -------------------------------------------------------------------------
+# 🛠️ 赛博堡垒万能模版：Helm 多源混合部署 (Multiple Sources)
+# 适用场景：需要引用外部官方 Helm 仓库，并使用本地 values.yaml 覆盖参数
+# -------------------------------------------------------------------------
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: <APP_NAME>                 # [必填] 替换为你的应用名称
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: <TARGET_NAMESPACE>  # [必填] 替换为应用实际运行的命名空间
+  
+  sources:
+    # --- 源 1：官方 Helm 图纸骨架 ---
+    - repoURL: '<HELM_REPO_URL>'   # [必填] 替换为官方 Helm 仓库地址
+      chart: '<CHART_NAME>'        # [必填] 替换为 Chart 名称
+      targetRevision: '<VERSION>'  # [必填] 替换为锁定的 Chart 版本号
+      helm:
+        valueFiles:
+          - $values/<PATH_TO_APP_DIR>/values.yaml  # [必填] 替换为本地路径
+
+    # --- 源 2：赛博堡垒私有 Git 参数库 ---
+    - repoURL: 'https://github.com/besthomelab/k3s-homelab-gitops.git'
+      targetRevision: HEAD
+      path: <PATH_TO_APP_DIR>      # [必填] 替换为本地文件夹路径
+      ref: values
+      directory:
+        # 🎯 赛博过滤网：排除所有包含 template 的文件（如 secret.template.yaml）
+        # 确保 ArgoCD 只加载加密后的 secret.yaml 和自定义 Service 等资源
+        exclude: '*template*'
+
+  # =======================================================================
+  # 🎯 赛博监工执法手册 (Sync Policy - 终极全参版)
+  # =======================================================================
+  syncPolicy:
+    # 🤖 1. 自动化策略 (Automated Sync)
+    # 【默认手动】：将 enabled 设为 false，保留参数但必须在 UI 点击 SYNC 才能部署。
+    # 【开启全自动】：如果是基础组件 (如 Longhorn)，将 enabled 改为 true 即可全自动驾驶。
+    automated:
+      enabled: false     # 【总开关】控制下方所有自动化行为是否生效。
+      prune: true        # 【自动拆除】Git 里删除了组件代码，K8s 现场自动销毁对应资源。
+      selfHeal: false    # 【自我修复】有人偷偷用 kubectl 改了现场配置，监工在 5 秒内强行覆盖回 Git 的状态 (演示省内存时必须为 false)。
+      allowEmpty: false  # 【核爆保护】防呆机制。若不小心清空了 Git 目录，是否允许把 K8s 现场也全部删光？(极度危险，永远保持 false)。
+    
+    # 🛠️ 2. 高级执行选项 (Sync Options) - 无论手动/自动都会生效
+    syncOptions:
+      - CreateNamespace=true               # 【基建包办】如果指定的 namespace 不存在，自动建一个。
+      # - SkipDryRunOnMissingResource=true # 【防推演卡死】部署包含未知 CRD 的 Helm 时必开，防止因找不到资源定义而报错卡死。
+      # - FailOnSharedResource=true        # 【防资源冲突】安全锁。如果发现当前组件的名字已经被其他 App 占用了，直接报错拒绝覆盖。
+      # - ApplyOutOfSyncOnly=true          # 【精准施工】巨型应用专属。只下发 Git 里发生变化的资源，不全量刷新集群，减轻 API Server 压力。
+      # - ServerSideApply=true             # 【服务端下发】当部署巨型应用 (超过 256KB 的 YAML) 报错时开启，让 K8s 自己算 Diff。
+      # - PruneLast=true                   # 【平滑过渡】更新时，先建好新版本并等待其 Running，最后再去删老版本。
+      # - RespectIgnoreDifferences=true    # 【求同存异】忽略特定的字段差异，部署时不强行覆盖已被忽略的字段。
+
+    # 🔄 3. 故障重试策略 (Retry Policy) - 仅在 automated: true 且同步失败时生效
+    retry:
+      limit: 5                      # 【最大尝试】重试次数上限。
+      backoff:
+        duration: 5s                # 【初次缓冲】首次重试前的等待时间。
+        factor: 2                   # 【退避乘数】每次重试等待时间的递增倍数 (5s, 10s, 20s...)。
+        maxDuration: 3m             # 【最长等待】单次重试等待的最大时长。
+      refresh: true                 # 【插队刷新】极其有用！若在重试期间 Git 又提交了新代码，立刻放弃旧代码，拿最新代码去重试。

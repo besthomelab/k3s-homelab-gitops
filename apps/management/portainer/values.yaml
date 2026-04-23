@@ -1,0 +1,11 @@
+# 强制开启 TLS，保证安全
+tls:
+  force: true
+
+# 存储配置
+persistence:
+  enabled: true
+  size: 300M
+  # K3s 默认存储类名
+  storageClass: "longhorn"
+

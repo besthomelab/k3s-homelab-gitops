@@ -1,0 +1,52 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: portainer
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: portainer
+  
+  sources:
+    - repoURL: 'https://portainer.github.io/k8s/'
+      chart: portainer
+      targetRevision: 239.1.0
+      helm:
+        valueFiles:
+          - $values/apps/management/portainer/values.yaml
+
+    - repoURL: 'https://github.com/besthomelab/k3s-homelab-gitops.git'
+      targetRevision: HEAD
+      path: apps/management/portainer  # ⚠️ 连同该目录下的自定义 Service 一起应用
+      ref: values
+
+  # =======================================================================
+  # 🎯 赛博监工执法手册 (Sync Policy)
+  # =======================================================================
+  syncPolicy:
+    automated:
+      enabled: true      # 【总开关】Git 推送后自动部署
+      prune: true        # 【自动拆除】Git 删则 K8s 删
+      selfHeal: false    # ⚠️【关闭自我修复】方便你在终端用 kubectl scale 缩容到 0 省内存
+      allowEmpty: false  # 【核爆保护】禁止清空集群
+    
+    syncOptions:
+      - CreateNamespace=true
+      # - SkipDryRunOnMissingResource=true
+      # - FailOnSharedResource=true
+      # - ApplyOutOfSyncOnly=true
+      # - ServerSideApply=true
+      # - PruneLast=true
+      # - RespectIgnoreDifferences=true
+
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
+      refresh: true

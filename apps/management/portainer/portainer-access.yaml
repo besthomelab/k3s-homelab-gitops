@@ -1,0 +1,24 @@
+---
+# 维度一：榨干发牌员 (LoadBalancer)
+# 我们手动定义一个，强制要求 Cilium 分配我们的 10.0.10.x 段 IP
+apiVersion: v1
+kind: Service
+metadata:
+  name: portainer-lb-manual
+  namespace: portainer
+  annotations:
+    # 🎯 赛博发牌员的“后门指令”：强制要求分配 10.0.10.55
+    io.cilium/lb-ipam-ips: "10.0.10.55" # REPLACE_ME 替换你的ip
+spec:
+  type: LoadBalancer
+  selector:
+    app.kubernetes.io/instance: portainer
+    app.kubernetes.io/name: portainer
+  ports:
+    - name: http
+      port: 9000
+      targetPort: 9000
+    - name: https
+      port: 443
+      targetPort: 9443
+
