@@ -6,7 +6,8 @@ kind: Kustomization
 resources:
   - https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
   # 🎯 本地叠加：把你博客里的那个 LB 服务也包含进来
-  - service.yaml
+patches:
+  - path: service.yaml
 
 # (可选) 如果你想改名字或者加标签，可以在这里统一处理
 # namespace: argocd
