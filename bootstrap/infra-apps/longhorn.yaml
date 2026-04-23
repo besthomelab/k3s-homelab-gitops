@@ -27,11 +27,11 @@ spec:
   # 🎯 赛博监工执法手册 (Sync Policy)
   # =======================================================================
   syncPolicy:
-    # automated:
-    #   enabled: true      # 【总开关】基础设施，开启全自动驾驶
-    #   prune: true        # 【自动拆除】Git 删则 K8s 删
-    #   selfHeal: true     # 【自我修复】底层大坝严禁任何人手动篡改，改了立刻恢复
-    #   allowEmpty: false  # 【核爆保护】禁止清空集群
+    automated:
+      enabled: true      # 【总开关】基础设施，开启全自动驾驶
+      prune: true        # 【自动拆除】Git 删则 K8s 删
+      selfHeal: true     # 【自我修复】底层大坝严禁任何人手动篡改，改了立刻恢复
+      allowEmpty: false  # 【核爆保护】禁止清空集群
     
     syncOptions:
       - CreateNamespace=true
