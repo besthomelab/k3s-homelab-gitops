@@ -38,7 +38,7 @@ spec:
       # - SkipDryRunOnMissingResource=true
       # - FailOnSharedResource=true
       # - ApplyOutOfSyncOnly=true
-      # - ServerSideApply=true
+      - ServerSideApply=true
       # - PruneLast=true
       # - RespectIgnoreDifferences=true
 
