@@ -5,7 +5,7 @@ metadata:
   name: argocd-server # 🎯 修正：直接修改官方原生的名字
 spec:
   type: LoadBalancer
-  loadBalancerIP: 10.0.10.53 
+  loadBalancerIP: 10.0.10.53 # REPLACE_ME -> 替换为你局域网规划的argocd IP
   ports:
   - name: http
     port: 80
