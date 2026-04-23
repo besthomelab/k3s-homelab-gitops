@@ -4,7 +4,7 @@ metadata:
   name: hubble-ui-lb
   namespace: kube-system
   annotations:
-    # 🎯 赛博发牌员的指令：强制要求从地址池中分配指定 IP
+    # 🎯 赛博发牌员的指令：强制要求从地址池中分配指定 IP 
     io.cilium/lb-ipam-ips: "10.0.10.51"  # REPLACE_ME -> 替换为你规划的 IP
 spec:
   type: LoadBalancer
