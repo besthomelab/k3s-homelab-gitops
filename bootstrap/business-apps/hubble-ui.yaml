@@ -1,0 +1,29 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: hubble-ui-access
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: kube-system  # 目标命名空间
+  
+  source:
+    repoURL: 'https://github.com/besthomelab/k3s-homelab-gitops.git' # 你的仓库地址
+    targetRevision: HEAD
+    path: apps/management/hubble-ui
+
+  # =======================================================================
+  # 🎯 监工策略：核心组件，建议开启自动驾驶
+  # =======================================================================
+  syncPolicy:
+    automated:
+      enabled: true      # 开启全自动，Git 改了现场就跟着改
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true # 对于网络类资源，建议开启服务端下发

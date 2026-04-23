@@ -1,0 +1,29 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: cilium-network-config
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: kube-system         
+  
+  source:
+    repoURL: 'https://github.com/besthomelab/k3s-homelab-gitops.git'
+    targetRevision: HEAD
+    path: infrastructure/cilium   
+    directory:
+      exclude: '*template*'
+        
+  syncPolicy:
+    automated:
+      enabled: true                # 核心配置，建议开启全自动，方便即时扩充 IP 池
+      prune: true
+      selfHeal: true
+    
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true       
