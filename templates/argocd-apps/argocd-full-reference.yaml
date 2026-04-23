@@ -1,0 +1,200 @@
+# ==============================================================================
+# 🏢 第一部分：基础元数据 (Metadata)
+# 对应 UI 区域：General 菜单顶部
+# ==============================================================================
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  # 🖥️ UI 对应：Application Name
+  # 💡 含义：应用的唯一标识。在 ArgoCD 面板上看到的名字，也是 K8s 里的资源名。
+  name: cyber-fortress-app
+
+  # 🖥️ UI 对应：(无直接对应，通常由安装环境决定)
+  # 💡 含义：ArgoCD 监工档案本身存放的命名空间，默认必须是 argocd。
+  namespace: argocd
+
+  # 🖥️ UI 对应：Set Deletion Finalizer (关键勾选项)
+  # 💡 含义：【物理级强拆协议】。勾选后，当你删除这个 Application 档案时，
+  # ArgoCD 会强制同步删除集群里该应用产生的所有实体资源。
+  # 若不设置，删掉 ArgoCD 里的 App 后，集群里的资源会变成“无主违建”继续运行。
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+
+# ==============================================================================
+# 🎯 第二部分：核心规格 (Spec)
+# 对应 UI 区域：Source, Destination, Project
+# ==============================================================================
+spec:
+  # 🖥️ UI 对应：Project
+  # 💡 含义：【所属项目组】。多租户管理用，HomeLab 默认选 default。
+  project: default
+
+  # ----------------------------------------------------------------------------
+  # 📥 来源配置 (Source)：图纸在哪里？
+  # 注意：在实际使用中，Directory、Helm、Kustomize 三大引擎通常只选其一配置。
+  # ----------------------------------------------------------------------------
+  source:
+    # 🖥️ UI 对应：Repository URL
+    # 💡 含义：你的 Git 仓库地址。ArgoCD 盯着这里看。
+    repoURL: https://github.com/besthomelab/k3s-homelab-gitops.git
+
+    # 🖥️ UI 对应：Revision
+    # 💡 含义：锁定图纸的分支或版本。可以是 HEAD (最新)、main 或具体的 Tag。
+    targetRevision: HEAD
+
+    # 🖥️ UI 对应：Path
+    # 💡 含义：精准定位。图纸文件在 Git 仓库里的具体子文件夹路径。
+    path: infrastructure/test
+
+    # --- 📂 引擎分支 A：目录扫描引擎 (Directory) ---
+    directory:
+      # 🖥️ UI 对应：Directory -> Recurse
+      # 💡 含义：【深挖模式】。是否递归扫描当前 Path 下的所有子文件夹。
+      recurse: true
+
+      # 🖥️ UI 对应：Directory -> Include
+      # 💡 含义：【白名单】。只读取符合规则的文件（如只读 *.yaml）。
+      include: 'INCLUDE'
+
+      # 🖥️ UI 对应：Directory -> Exclude
+      # 💡 含义：【黑名单】。排除掉特定文件（如排除所有包含 *template* 的文件）。
+      exclude: 'EXCLUDE'
+
+      # --- 🪄 Jsonnet 插件 (仅当图纸是 .jsonnet 代码时生效) ---
+      jsonnet:
+        # 🖥️ UI 对应：Jsonnet -> TLAs
+        # 💡 含义：【顶级指令】传给 Jsonnet 主函数入口的特定参数。
+        tlas:
+          - name: '12'
+            value: '35'
+        # 🖥️ UI 对应：Jsonnet -> Ext Vars
+        # 💡 含义：【全局大黑板】注入到 Jsonnet 运行环境中的外部变量。
+        extVars:
+          - name: '56'
+            value: '67'
+
+    # --- 📦 引擎分支 B：Helm 引擎 (Helm) ---
+    helm:
+      # 🖥️ UI 对应：Helm -> Value Files
+      # 💡 含义：【图纸覆写】指定外部 values.yaml 文件进行参数覆盖。
+      valueFiles:
+        - values.yaml
+      # 🖥️ UI 对应：Helm -> Parameters
+      # 💡 含义：【强行注入】直接以 K-V 形式注入参数，优先级最高。
+      parameters:
+        - name: "service.type"
+          value: "LoadBalancer"
+
+    # --- 🧩 引擎分支 C：Kustomize 引擎 (Kustomize) ---
+    kustomize:
+      # 🖥️ UI 对应：Kustomize -> Name Prefix
+      # 💡 含义：【强行换皮】批量给图纸里所有资源的名称加上前缀。
+      namePrefix: cyber-
+      # 🖥️ UI 对应：Kustomize -> Images
+      # 💡 含义：【镜像劫持】强制将原始 YAML 里的某个镜像替换为新的镜像及版本号。
+      images:
+        - nginx:alpine
+
+  # ----------------------------------------------------------------------------
+  # 🎯 目标配置 (Destination)：盖在哪里？
+  # ----------------------------------------------------------------------------
+  destination:
+    # 🖥️ UI 对应：Cluster URL
+    # 💡 含义：目标集群。内部集群固定填下面这个；管理多集群时选外部 API 地址。
+    server: https://kubernetes.default.svc
+    # 🖥️ UI 对应：Namespace
+    # 💡 含义：资源最终落在集群的哪个命名空间里（如 default, apps, database）。
+    namespace: default
+
+# ==============================================================================
+# 🤖 第三部分：同步策略 (Sync Policy)
+# 对应 UI 区域：Sync Policy (灵魂所在)
+# ==============================================================================
+  syncPolicy:
+    # --------------------------------------------------------------------------
+    # ⚡ 自动化 (Automated)：是否开启自动驾驶
+    # --------------------------------------------------------------------------
+    automated:
+      # 🖥️ UI 对应：勾选了右上角的 AUTOMATED 开关
+      enabled: true
+      # 🖥️ UI 对应：Prune Resources (复选框)
+      # 💡 含义：【自动强拆】。Git 里删了 YAML，K8s 现场立刻物理摧毁对应资源。
+      prune: true
+      # 🖥️ UI 对应：Self Heal (复选框)
+      # 💡 含义：【自我修复】。现场配置被偷偷修改后，5秒内强制覆写回 Git 的状态。
+      selfHeal: true
+      # 🖥️ UI 对应：Allow Empty (无 UI 直接开关，需在代码中配)
+      # 💡 含义：【防核爆锁】。若 Git 被清空，是否允许删光集群资源？永远保持 false。
+      allowEmpty: false
+
+    # --------------------------------------------------------------------------
+    # 🛠️ 施工选项 (Sync Options)：无论手动还是自动都生效
+    # --------------------------------------------------------------------------
+    syncOptions:
+      # 🖥️ UI 对应：Validate=false (勾选 Skip Schema Validation)
+      # 💡 含义：【免检通道】。跳过 YAML 语法格式的严格预检。
+      - Validate=false
+      # 🖥️ UI 对应：Respect Ignore Differences
+      # 💡 含义：【求同存异】。同步时，坚决不动下方 ignoreDifferences 列表里定义的字段。
+      - RespectIgnoreDifferences=true
+      # 🖥️ UI 对应：Prune Last
+      # 💡 含义：【平滑过渡】。先建新资源，等新版本 Ready 了再去删老版本。
+      - PruneLast=true
+      # 🖥️ UI 对应：Replace
+      # 💡 含义：【爆破重建】。不用 apply 而是用 replace。仅用于解决不可变字段死锁。
+      - Replace=true
+      # 🖥️ UI 对应：Auto-Create Namespace
+      # 💡 含义：【包办基建】。如果指定的目标命名空间不存在，自动帮你创建一个。
+      - CreateNamespace=true
+      # 🖥️ UI 对应：Apply Out Of Sync Only
+      # 💡 含义：【精准下发】。只同步有差异的资源，不再全量刷新整个 App 的所有 YAML。
+      - ApplyOutOfSyncOnly=true
+      # 🖥️ UI 对应：Server Side Apply
+      # 💡 含义：【服务端下发】。将计算 Diff 的压力推给 K8s 服务端，解决 YAML 太大的报错。
+      - ServerSideApply=true
+
+    # --------------------------------------------------------------------------
+    # 🔄 重试策略 (Retry)：同步失败了怎么办
+    # --------------------------------------------------------------------------
+    retry:
+      # 🖥️ UI 对应：Retry Limit
+      # 💡 含义：【最大尝试次数】。同步失败后，最多死磕多少次？
+      limit: 2
+      backoff:
+        # 🖥️ UI 对应：Duration
+        # 💡 含义：【初次等待】。失败后等多久开始第一次重试。
+        duration: 5s
+        # 🖥️ UI 对应：Max Duration
+        # 💡 含义：【最长忍耐】。重试等待的最大上限。
+        maxDuration: 3m0s
+        # 🖥️ UI 对应：Factor
+        # 💡 含义：【递增乘数】。每次重试等待时间的翻倍系数（5s, 10s, 20s...）。
+        factor: 2
+
+# ==============================================================================
+# 🙈 第四部分：视而不见名单 (Ignore Differences)
+# 对应 UI 区域：App Details -> 顶部 Diff 页面可配置，通常直接在 YAML 中手写
+# ==============================================================================
+  # 💡 含义：【免检名单】告诉监工对这些运行时动态生成的字段“闭上眼睛”，不要报红色的 OutOfSync！
+  ignoreDifferences:
+    - group: "apps"
+      kind: "Deployment"
+      jqPathExpressions:
+        # 忽略副本数变动（例如被 HPA 自动缩放机制修改了副本数，ArgoCD 不会强行缩回来）
+        - .spec.replicas 
+    - group: ""
+      kind: "Service"
+      jqPathExpressions:
+        # 忽略 K8s 自动为 LoadBalancer 分配的随机 NodePort（消除无意义的 Diff 报警）
+        - .spec.ports[].nodePort
+
+# ==============================================================================
+# ℹ️ 第五部分：应用名片与扩展信息 (Info & Links)
+# 对应 UI 区域：App Details 页面顶部的快捷跳转卡片
+# ==============================================================================
+  # 💡 含义：【导航小卡片】在 ArgoCD 的界面上直接生成可以点击跳转的超链接，方便运维人员快速查看。
+  info:
+    - name: "🌐 业务对外访问大门"
+      value: "https://demo.besthomelab.tech"
+    - name: "📊 Grafana 监控雷达"
+      value: "https://grafana.besthomelab.tech/d/cyber-app-dashboard"

@@ -57,3 +57,7 @@ spec:
       namespace: longhorn-system 
       jqPathExpressions:
         - .spec.ports[].nodePort
+    - group: "argoproj.io"
+      kind: "Application"
+      jqPathExpressions:
+        - .metadata.finalizers
