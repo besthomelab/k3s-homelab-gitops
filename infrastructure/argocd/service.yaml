@@ -2,12 +2,10 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: argocd-server-lb
-  namespace: argocd
+  name: argocd-server # 🎯 修正：直接修改官方原生的名字
 spec:
   type: LoadBalancer
-  # 🎯 赛博靓号：固定住 10.0.10.53，以后重装也不会变
-  loadBalancerIP: 10.0.10.53 # REPLACE_ME  替换为你规划的ip地址
+  loadBalancerIP: 10.0.10.53 
   ports:
   - name: http
     port: 80
@@ -18,5 +16,4 @@ spec:
     protocol: TCP
     targetPort: 8080
   selector:
-    # 锁定 ArgoCD UI 服务的标签
     app.kubernetes.io/name: argocd-server
