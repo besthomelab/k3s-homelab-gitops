@@ -5,7 +5,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: nginx-test
-  namespace: apps  # 🎯 部署在业务层 Namespace
+  namespace: default  # 🎯 部署在业务层 Namespace
   labels:
     app: nginx-test
 spec:
@@ -32,7 +32,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: nginx-test-svc
-  namespace: apps
+  namespace: default
   annotations:
     io.cilium/lb-ipam-ips: "10.0.10.88" 
 spec:
