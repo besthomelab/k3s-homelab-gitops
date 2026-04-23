@@ -49,3 +49,10 @@ spec:
         factor: 2
         maxDuration: 3m
       refresh: true
+      
+  ignoreDifferences:
+    - group: ""
+      kind: Service
+      name: longhorn-frontend
+      jsonPointers:
+        - /spec/ports/0/nodePort  # 🎯 告诉监工：不要盯着这个端口看
