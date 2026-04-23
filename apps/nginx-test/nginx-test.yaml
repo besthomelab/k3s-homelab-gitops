@@ -9,7 +9,7 @@ metadata:
   labels:
     app: nginx-test
 spec:
-  replicas: 2      # 测试靶机，1 个实例就够了
+  replicas: 1      # 测试靶机，1 个实例就够了
   selector:
     matchLabels:
       app: nginx-test
