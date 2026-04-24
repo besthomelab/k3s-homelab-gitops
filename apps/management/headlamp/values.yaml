@@ -1,6 +1,7 @@
 config:
   watchPlugins: true
 
+replicaCount: 2
 service:
   type: ClusterIP
   port: 80
