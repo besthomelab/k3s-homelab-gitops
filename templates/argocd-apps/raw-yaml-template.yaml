@@ -34,7 +34,12 @@ spec:
       selfHeal: false    # 【反篡改/自我修复】若有人用 kubectl 偷偷改了现场配置，是否强行覆盖回 Git 的状态？
       allowEmpty: false  # 【核爆保护】防呆机制。若不小心清空了 Git 目录，是否允许把 K8s 现场也夷为平地？
     
+    # 🛠️ 2. 高级执行选项 (Sync Options) - 无论手动/自动都会生效
     syncOptions:
-      - CreateNamespace=true        # 【基建包办】如果指定的 namespace 不存在，自动建一个。
-      # - ServerSideApply=true      # 【服务端下发】当部署巨型应用报错时开启。
-      # - PruneLast=true            # 【平滑过渡】先建新版本，再删老版本。
+      - CreateNamespace=true               # 【基建包办】如果指定的 namespace 不存在，自动建一个。
+      # - SkipDryRunOnMissingResource=true # 【防推演卡死】部署包含未知 CRD 的 Helm 时必开，防止因找不到资源定义而报错卡死。
+      # - FailOnSharedResource=true        # 【防资源冲突】安全锁。如果发现当前组件的名字已经被其他 App 占用了，直接报错拒绝覆盖。
+      # - ApplyOutOfSyncOnly=true          # 【精准施工】巨型应用专属。只下发 Git 里发生变化的资源，不全量刷新集群，减轻 API Server 压力。
+      # - ServerSideApply=true             # 【服务端下发】当部署巨型应用 (超过 256KB 的 YAML) 报错时开启，让 K8s 自己算 Diff。
+      # - PruneLast=true                   # 【平滑过渡】更新时，先建好新版本并等待其 Running，最后再去删老版本。
+      # - RespectIgnoreDifferences=true    # 【求同存异】忽略特定的字段差异，部署时不强行覆盖已被忽略的字段。

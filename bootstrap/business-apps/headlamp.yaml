@@ -36,12 +36,6 @@ spec:
     
     syncOptions:
       - CreateNamespace=true
-      # - SkipDryRunOnMissingResource=true
-      # - FailOnSharedResource=true
-      # - ApplyOutOfSyncOnly=true
-      # - ServerSideApply=true
-      # - PruneLast=true
-      # - RespectIgnoreDifferences=true
 
     retry:
       limit: 5
