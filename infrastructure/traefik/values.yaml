@@ -1,12 +1,20 @@
 # 📂 路径: infrastructure/traefik/values.yaml
 
+# 🛡️ 屏蔽官方隐私收集与升级检测
+globalArguments:
+  - "--global.sendanonymoususage=false"
+  - "--global.checknewversion=false"
+
+# 🚀 盲信内网自签证书，避免 502 报错
+additionalArguments:
+  - "--serversTransport.insecureSkipVerify=true"
+
 deployment:
   enabled: true
   replicas: 2
 
 ports:
   web:
-    # 🚀 新版强制 HTTPS 跳转的合法语法
     http:
       redirections:
         entryPoint:
@@ -14,7 +22,9 @@ ports:
           scheme: https
           permanent: true
   websecure:
-    # ⚠️ 什么都不用写！删掉 tls: enabled。新版直接由下方的 tlsStore 接管。
+    # ⚡ 开启下一代 HTTP/3 (QUIC) 加速
+    http3:
+      enabled: true
     expose:
       default: true
 
@@ -22,8 +32,9 @@ service:
   enabled: true
   type: LoadBalancer
   spec:
-    loadBalancerIP: 10.0.10.100
+    loadBalancerIP: 10.0.10.100 # REPLACE_ME 替换你的ip
 
+# 🔐 全局自动挂载泛域名证书
 tlsStore:
   default:
     defaultCertificate:

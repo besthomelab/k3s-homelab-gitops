@@ -16,5 +16,15 @@ spec:
     namespace: argocd
   syncPolicy:
     automated:
-      prune: true
-      selfHeal: true
+      enabled: false      # 基础设施，开启全自动驾驶
+      prune: false
+      selfHeal: false
+      allowEmpty: false
+    syncOptions:
+      - CreateNamespace=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
