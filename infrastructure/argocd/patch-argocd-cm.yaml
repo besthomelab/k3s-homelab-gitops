@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: argocd-cm
+data:
+  # 官网说默认排除了很多，我们通过显式包含来覆盖它
+  resource.inclusions: |
+    - apiGroups:
+        - ""
+      kinds:
+        - Endpoints
