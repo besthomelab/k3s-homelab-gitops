@@ -1,0 +1,27 @@
+# 1. 域名别名：在 K8s 内部做一个 CNAME 映射
+apiVersion: v1
+kind: Service
+metadata:
+  name: <应用名称>-svc
+  namespace: traefik
+spec:
+  type: ExternalName
+  externalName: <外部目标真实域名> # 例如: www.google.com
+---
+# 2. Traefik 入口：定义域名和访问协议
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: <应用名称>-ingress
+  namespace: traefik
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`<访问域名>`)
+      kind: Rule
+      services:
+        - name: <应用名称>-svc
+          port: 443               # 外部域名通常都是 443
+          scheme: https           # 外部域名通常都是 https
+  tls: {}

@@ -1,0 +1,43 @@
+# 1. 定义一个无选择器 (Selector) 的 Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: opnsense-external
+  namespace: traefik
+spec:
+  ports:
+    - protocol: TCP
+      port: 443       # Service 暴露在 K8s 内部的端口
+      targetPort: 443 # OPNsense 实际监听的端口 (通常 HTTPS 是 443)
+
+---
+# 2. 定义同名 Endpoints，填入真实物理 IP
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: opnsense-external # 关键：名字必须和上面的 Service 一字不差
+  namespace: traefik
+subsets:
+  - addresses:
+      - ip: 10.0.0.1      # REPLACE_ME OPNsense 的真实物理 IP
+    ports:
+      - port: 443
+
+---
+# 3. Traefik 路由规则
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: opnsense-ingress
+  namespace: traefik
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`opnsense.k3s.besthomelab.tech`)
+      kind: Rule
+      services:
+        - name: opnsense-external
+          port: 443
+          scheme: https   # 关键：目标是 HTTPS 服务必须写明
+  tls: {}
