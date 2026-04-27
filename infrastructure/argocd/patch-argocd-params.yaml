@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: argocd-cmd-params-cm
+data:
+  # 核心配置：开启非安全模式，允许 Traefik 卸载 SSL 后通过 HTTP 访问
+  server.insecure: "true"

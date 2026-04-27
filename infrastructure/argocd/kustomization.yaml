@@ -9,6 +9,6 @@ resources:
   # 🎯 本地叠加：把你博客里的那个 LB 服务也包含进来
 patches:
   - path: service.yaml
-
+  - path: patch-argocd-params.yaml
 # (可选) 如果你想改名字或者加标签，可以在这里统一处理
 # namespace: argocd
