@@ -10,6 +10,5 @@ resources:
 patches:
   - path: service.yaml
   - path: patch-argocd-params.yaml
-  - path: patch-argocd-cm.yaml
 # (可选) 如果你想改名字或者加标签，可以在这里统一处理
 # namespace: argocd
