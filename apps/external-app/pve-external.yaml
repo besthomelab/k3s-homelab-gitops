@@ -1,0 +1,38 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: pve-external
+  namespace: traefik
+spec:
+  ports:
+    - protocol: TCP
+      port: 8006
+      targetPort: 8006
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: pve-external
+  namespace: traefik
+subsets:
+  - addresses:
+      - ip: 10.0.0.50    # 你的 PVE 物理机 IP
+    ports:
+      - port: 8006
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: pve-ingress
+  namespace: traefik
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`pve.k3s.besthomelab.tech`)
+      kind: Rule
+      services:
+        - name: pve-external
+          port: 8006
+          scheme: https # 关键：PVE 后端是 HTTPS，必须显式指定
+  tls: {} # 继续白嫖泛域名证书

@@ -1,0 +1,45 @@
+# -------------------------------------------------------------------------
+# 🛠️ 赛博堡垒万能模版：纯 YAML 静态清单部署
+# 适用场景：没有 Helm，完全由自己手写 Deployment、Service、Ingress 的纯粹应用
+# -------------------------------------------------------------------------
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: external-app                 # [必填] 替换为你的应用名称
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: traefik # [必填] 替换为应用实际运行的命名空间
+  
+  source:
+    repoURL: 'https://github.com/besthomelab/k3s-homelab-gitops.git'
+    targetRevision: HEAD
+    path: apps/external-app        # [必填] 替换为存放你手写 YAML 文件的本地文件夹路径
+    directory:
+        # 🎯 赛博过滤网：排除所有包含 template 的文件（如 secret.template.yaml）
+        # 确保 ArgoCD 只加载加密后的 secret.yaml 和自定义 Service 等资源
+        exclude: '*template*'
+        
+  # =======================================================================
+  # 🎯 赛博监工执法手册 (Sync Policy)
+  # =======================================================================
+  syncPolicy:
+    automated:
+      enabled: false     # 【总开关】false = 必须在 UI 界面手动点击 SYNC 按钮；true = 纯自动驾驶 (适合基础组件)
+      prune: true        # 【自动拆除】如果 Git 里删除了该文件，K8s 现场是否自动销毁对应资源？
+      selfHeal: false    # 【反篡改/自我修复】若有人用 kubectl 偷偷改了现场配置，是否强行覆盖回 Git 的状态？
+      allowEmpty: false  # 【核爆保护】防呆机制。若不小心清空了 Git 目录，是否允许把 K8s 现场也夷为平地？
+    
+    # 🛠️ 2. 高级执行选项 (Sync Options) - 无论手动/自动都会生效
+    syncOptions:
+      #- CreateNamespace=true               # 【基建包办】如果指定的 namespace 不存在，自动建一个。
+      # - SkipDryRunOnMissingResource=true # 【防推演卡死】部署包含未知 CRD 的 Helm 时必开，防止因找不到资源定义而报错卡死。
+      # - FailOnSharedResource=true        # 【防资源冲突】安全锁。如果发现当前组件的名字已经被其他 App 占用了，直接报错拒绝覆盖。
+      # - ApplyOutOfSyncOnly=true          # 【精准施工】巨型应用专属。只下发 Git 里发生变化的资源，不全量刷新集群，减轻 API Server 压力。
+      # - ServerSideApply=true             # 【服务端下发】当部署巨型应用 (超过 256KB 的 YAML) 报错时开启，让 K8s 自己算 Diff。
+      # - PruneLast=true                   # 【平滑过渡】更新时，先建好新版本并等待其 Running，最后再去删老版本。
+      # - RespectIgnoreDifferences=true    # 【求同存异】忽略特定的字段差异，部署时不强行覆盖已被忽略的字段。

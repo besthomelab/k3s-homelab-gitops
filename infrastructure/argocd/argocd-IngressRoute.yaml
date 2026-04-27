@@ -1,0 +1,28 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: argocd-server
+  namespace: argocd
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    # 1. 优先级最高：处理 gRPC 流量 (给 argocd CLI 使用)
+    - kind: Rule
+      match: Host(`argocd.k3s.besthomelab.tech`) && Header(`Content-Type`, `application/grpc`)
+      priority: 11
+      services:
+        - name: argocd-server
+          port: 80
+          scheme: h2c # 关键：使用 HTTP/2 Cleartext 转发 gRPC
+    
+    # 2. 优先级次之：处理常规 Web UI 流量
+    - kind: Rule
+      match: Host(`argocd.k3s.besthomelab.tech`)
+      priority: 10
+      services:
+        - name: argocd-server
+          port: 80
+
+  # 3. 见证奇迹：自动应用你的正式泛域名绿锁
+  tls: {}
