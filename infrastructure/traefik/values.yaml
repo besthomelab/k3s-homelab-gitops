@@ -1,9 +1,9 @@
 # 📂 路径: infrastructure/traefik/values.yaml
 
 # 🛡️ 屏蔽官方隐私收集与升级检测
-globalArguments:
-  - "--global.sendanonymoususage=false"
-  - "--global.checknewversion=false"
+global:
+  sendAnonymousUsage: false
+  checkNewVersion: false
 
 # 🚀 盲信内网自签证书，避免 502 报错
 additionalArguments:
