@@ -1,12 +1,14 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: pve-external-proxy
+  name: pve-external
   namespace: traefik
 spec:
-  type: ExternalName
-  # 虽然官方建议这里写域名，但直接写 IP 在 Traefik 环境下是完全通的
-  externalName: 10.0.0.50
+  ports:
+    - protocol: TCP
+      port: 8006
+      targetPort: 8006
+
 ---
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
@@ -20,7 +22,7 @@ spec:
     - match: Host(`pve.k3s.besthomelab.tech`)
       kind: Rule
       services:
-        - name: pve-external-proxy # 引用上面的别名服务
-          port: 8006               # PVE 的端口
-          scheme: https            # 告诉 Traefik 后面是加密的
-  tls: {} # 继续白嫖你的正式证书
+        - name: pve-external
+          port: 8006
+          scheme: https # 关键：PVE 后端是 HTTPS，必须显式指定
+  tls: {} # 继续白嫖泛域名证书
