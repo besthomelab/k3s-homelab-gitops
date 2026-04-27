@@ -5,6 +5,7 @@ kind: Kustomization
 # 🎯 远程引用：直接指向官方稳定版的远程图纸
 resources:
   - https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+  - argocd-IngressRoute.yaml
   # 🎯 本地叠加：把你博客里的那个 LB 服务也包含进来
 patches:
   - path: service.yaml

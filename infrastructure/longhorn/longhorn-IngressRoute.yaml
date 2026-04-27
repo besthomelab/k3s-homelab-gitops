@@ -2,7 +2,7 @@ apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
 metadata:
   name: longhorn-tls        # 建议格式：应用名-tls
-  namespace: portainer      # 应用所在的命名空间
+  namespace: longhorn-system      # 应用所在的命名空间
 spec:
   entryPoints:
     - websecure                          # 只走 443 端口，安全第一

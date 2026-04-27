@@ -21,6 +21,7 @@ spec:
 
     - repoURL: 'https://github.com/besthomelab/k3s-homelab-gitops.git'
       targetRevision: HEAD
+      path: infrastructure/longhorn
       ref: values
 
   # =======================================================================
