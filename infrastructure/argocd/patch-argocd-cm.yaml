@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: argocd-cm
+  namespace: argocd
+data:
+  # 💡 核心逻辑：
+  # 我们手动列出这些“吵闹”的资源进行屏蔽，但故意【不写】Endpoints。
+  # 这样 ArgoCD 就会认为 Endpoints 是“合法的、需要监控的”资源。
+  resource.exclusions: |
+    - apiGroups:
+        - ""
+      kinds:
+        - EndpointSlice
+        - Lease
+        - TokenReview
+        - SelfSubjectReview
+        - SubjectAccessReview
+    - apiGroups:
+        - cert-manager.io
+      kinds:
+        - CertificateRequest
+    - apiGroups:
+        - cilium.io
+      kinds:
+        - CiliumIdentity
+        - CiliumEndpoint
