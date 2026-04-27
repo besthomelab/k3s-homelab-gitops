@@ -3,15 +3,15 @@ apiVersion: cert-manager.io/v1
 kind: ClusterIssuer
 metadata:
   # 🧪 【测试服修改点 1】：若进行防封号演习，请改为 letsencrypt-staging
-  name: letsencrypt-staging
+  name: letsencrypt-prod
 spec:
   acme:
     # 🧪 【测试服修改点 2】：若演习，请替换为 https://acme-staging-v02.api.letsencrypt.org/directory
-    server: https://acme-staging-v02.api.letsencrypt.org/directory
+    server: https://acme-v02.api.letsencrypt.org/directory
     email: jekejjej675@gmail.com  # REPLACE_ME ⚠️ 替换为你的真实通知邮箱
     privateKeySecretRef:
       # 🧪 【测试服修改点 3】：若演习，请务必换个密钥名（如 letsencrypt-staging-account-key），切勿与正式服混用工作证！
-      name: letsencrypt-staging-account-key
+      name: letsencrypt-prod-account-key
     solvers:
       - dns01:
           cloudflare:
@@ -28,7 +28,7 @@ spec:
   secretName: k3s-besthomelab-tech-tls # 最终生成的证书 Secret 名称
   issuerRef:
     # 🧪 【测试服修改点 4】：若演习，请同步修改为 letsencrypt-staging，确保与上方签证官名字一致
-    name: letsencrypt-staging
+    name: letsencrypt-prod
     kind: ClusterIssuer
   commonName: "*.k3s.besthomelab.tech"
   dnsNames:
