@@ -33,9 +33,9 @@ spec:
 
   syncPolicy:
     automated:
-      enabled: false      # 基础设施，开启全自动驾驶
-      prune: false
-      selfHeal: false
+      enabled: true      # 基础设施，开启全自动驾驶
+      prune: true
+      selfHeal: true
       allowEmpty: false
     syncOptions:
       - CreateNamespace=true
