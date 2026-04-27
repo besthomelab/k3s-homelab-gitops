@@ -1,4 +1,4 @@
-# 1. 定义 ExternalName 类型的 Service (不需要 Endpoints)
+# 1. 你的基础服务 (保持不变)
 apiVersion: v1
 kind: Service
 metadata:
@@ -6,10 +6,34 @@ metadata:
   namespace: traefik
 spec:
   type: ExternalName
-  externalName: www.google.com # 直接填入外部域名
+  externalName: www.google.com
 
 ---
-# 2. Traefik 路由规则
+# 2. 关键补丁：骗过 Google 的“易容面具”
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: google-host-rewrite
+  namespace: traefik
+spec:
+  headers:
+    # 强制把你的内部域名替换成 Google 认识的域名
+    customRequestHeaders:
+      Host: "www.google.com" 
+
+---
+# 3. 关键补丁：骗过 HTTPS 证书校验
+apiVersion: traefik.io/v1alpha1
+kind: ServersTransport
+metadata:
+  name: google-transport
+  namespace: traefik
+spec:
+  # 强制使用 Google 的证书名字进行握手
+  serverName: "www.google.com" 
+
+---
+# 4. 你的路由规则 (加上面具)
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
 metadata:
@@ -21,8 +45,11 @@ spec:
   routes:
     - match: Host(`google.k3s.besthomelab.tech`)
       kind: Rule
+      middlewares:
+        - name: google-host-rewrite # 戴上面具 1
       services:
         - name: google-external
           port: 443
           scheme: https
+          serversTransport: google-transport # 戴上面具 2
   tls: {}
