@@ -1,0 +1,32 @@
+# 📂 路径: infrastructure/cert-manager/02-cluster-issuer-and-cert.yaml
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-prod
+spec:
+  acme:
+    server: https://acme-v02.api.letsencrypt.org/directory
+    email: admin@besthomelab.tech  # ⚠️ 替换为你的通知邮箱
+    privateKeySecretRef:
+      name: letsencrypt-prod-account-key
+    solvers:
+      - dns01:
+          cloudflare:
+            apiTokenSecretRef:
+              name: cloudflare-api-token
+              key: api-token
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: k3s-besthomelab-tech-tls
+  namespace: traefik # ⚠️ 证书必须存储在网关所在的命名空间
+spec:
+  secretName: k3s-besthomelab-tech-tls # 最终生成的证书 Secret 名称
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer
+  commonName: "*.k3s.besthomelab.tech"
+  dnsNames:
+  - "k3s.besthomelab.tech"
+  - "*.k3s.besthomelab.tech"

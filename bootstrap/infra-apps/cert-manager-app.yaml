@@ -1,0 +1,48 @@
+# -------------------------------------------------------------------------
+# 🛠️ 赛博堡垒：Cert-manager 自动化签证官部署图纸 (Helm Multi-Source)
+# -------------------------------------------------------------------------
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: cert-manager
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: cert-manager  # 目标命名空间
+  
+  sources:
+    # --- 源 1：Jetstack 官方 Helm 骨架 ---
+    - repoURL: 'https://charts.jetstack.io'
+      chart: 'cert-manager'
+      targetRevision: 'v1.20.2'  # ⚠️ [必填] 请查阅官方获取最新版本号
+      helm:
+        valueFiles:
+          - $values/infrastructure/cert-manager/values.yaml
+
+    # --- 源 2：赛博堡垒私有 Git 参数库 ---
+    - repoURL: 'https://github.com/besthomelab/k3s-homelab-gitops.git' # ⚠️ 替换为你的 Git 仓库
+      targetRevision: HEAD
+      path: infrastructure/cert-manager  # 指向本地的 cert-manager 配置目录
+      ref: values
+      directory:
+        exclude: '*template*'
+
+  syncPolicy:
+    automated:
+      enabled: false      # 基础设施，开启全自动驾驶
+      prune: false
+      selfHeal: false
+      allowEmpty: false
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true # 包含大量 CRD，开启服务端下发
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m

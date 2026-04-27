@@ -1,0 +1,4 @@
+# 强制安装 Cert-manager 所需的自定义资源定义 (CRD)
+crds:
+  enabled: true
+  keep: true
