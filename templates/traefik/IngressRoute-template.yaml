@@ -1,0 +1,16 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: REPLACE_WITH_APP_NAME-tls        # 建议格式：应用名-tls
+  namespace: REPLACE_WITH_NAMESPACE      # 应用所在的命名空间
+spec:
+  entryPoints:
+    - websecure                          # 只走 443 端口，安全第一
+  routes:
+    - match: Host(`YOUR_SUBDOMAIN.k3s.besthomelab.tech`) # 替换你的二级域名
+      kind: Rule
+      services:
+        - name: REPLACE_ME # K8s Service 的名字
+          port: 80                        # K8s Service 监听的端口
+  # --- 核心黑科技 ---
+  tls: {} # 留空即代表：自动寻找 tlsStore 里的默认泛域名证书
