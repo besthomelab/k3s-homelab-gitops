@@ -1,0 +1,30 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: traefik
+  namespace: argocd
+spec:
+  project: default
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: traefik
+  sources:
+    # 源 1：Traefik 官方 Helm 图纸骨架
+    - repoURL: 'https://traefik.github.io/charts'
+      chart: 'traefik'
+      # ⚠️ 注意：推送到 Git 前，请确认填入最新的官方版本号
+      targetRevision: '39.0.8'  
+      helm:
+        valueFiles:
+          - $values/infrastructure/traefik/values.yaml
+    - repoURL: 'https://github.com/besthomelab/k3s-homelab-gitops.git'
+      targetRevision: HEAD
+      path: infrastructure/traefik
+      ref: values
+  syncPolicy:
+    automated:
+      enabled: false
+      prune: false
+      selfHeal: false
+    syncOptions:
+      - CreateNamespace=true

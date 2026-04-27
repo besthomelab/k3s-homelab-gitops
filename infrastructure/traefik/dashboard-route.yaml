@@ -1,0 +1,16 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: traefik-dashboard
+  namespace: traefik
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`traefik.k3s.besthomelab.tech`)
+      kind: Rule
+      services:
+        - name: api@internal
+          kind: TraefikService
+  # 见证奇迹：无需指定 Secret 名称，直接开启 TLS 即可白嫖全局证书
+  tls: {}

@@ -1,0 +1,24 @@
+deployment:
+  enabled: true
+  replicas: 2 # 建立双节点高可用哨塔
+
+ports:
+  web:
+    redirectTo:
+      port: websecure # 强制跳转 HTTPS
+  websecure:
+    tls:
+      enabled: true
+
+service:
+  enabled: true
+  type: LoadBalancer
+  spec:
+    loadBalancerIP: 10.0.10.100 # REPLACE_ME -> 替换为你局域网规划的 IP
+
+# 🛡️ 核心黑科技：全局默认 TLS 弹药库
+tlsStore:
+  default:
+    defaultCertificate:
+      # 指向 Cert-manager 生成的泛域名证书 Secret 名称
+      secretName: k3s-besthomelab-tech-tls
