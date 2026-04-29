@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: REPLACE_APP_NAME-external
+  name: <REPLACE_APP_NAME>-external
   namespace: traefik
 spec:
   ports:
@@ -12,7 +12,7 @@ spec:
 apiVersion: v1
 kind: Endpoints
 metadata:
-  name: REPLACE_APP_NAME-external
+  name: <REPLACE_APP_NAME>-external
   namespace: traefik
 subsets:
   - addresses:
@@ -25,16 +25,16 @@ subsets:
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
 metadata:
-  name: REPLACE_APP_NAME-ingress
+  name: <REPLACE_APP_NAME>-ingress
   namespace: traefik
 spec:
   entryPoints:
     - websecure
   routes:
-    - match: Host(`REPLACE_SUBDOMAIN.k3s.besthomelab.tech`)
+    - match: Host(`<REPLACE_SUBDOMAIN>.k3s.besthomelab.tech`)
       kind: Rule
       services:
-        - name: REPLACE_APP_NAME-external
+        - name: <REPLACE_APP_NAME>-external
           port: 80
           # 如果外部设备本身就是 HTTPS（如 PVE/OPNsense），请开启下面这行
           # scheme: https 
