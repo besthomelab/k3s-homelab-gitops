@@ -12,5 +12,4 @@ spec:
       services:
         - name: <REPLACE_ME> # K8s Service 的名字
           port: 80                        # K8s Service 监听的端口
-  # --- 核心黑科技 ---
   tls: {} # 留空即代表：自动寻找 tlsStore 里的默认泛域名证书
