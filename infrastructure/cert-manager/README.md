@@ -7,7 +7,7 @@ Cert-manager 是整个赛博堡垒的安全基石，负责通过 Cloudflare DNS 
 在将图纸推送到 GitHub 前，请根据你的环境修改以下三个文件的 `REPLACE_ME` 部分：
 
 1. **单向加密处理 (kubeseal)**：
-   * *💡 前置条件：如果你还没在集群中部署加解密控制器，请务必先完成 [纯正 GitOps 密码管理：Sealed Secrets](/cluster/sealed-secrets/) 的前置基建。*
+
    * 找到图纸库中的 `01-cloudflare-secret.template.yaml` 文件，将刚才获取的 Token 填入 `api-token` 字段。
    * 
    * 打开你的终端，进入你克隆到本地的工程目录，并执行加密指令：
