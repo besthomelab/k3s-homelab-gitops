@@ -1,0 +1,32 @@
+# -------------------------------------------------------------------------
+# 🛠️ 赛博堡垒万能模版：纯 YAML 静态清单部署
+# -------------------------------------------------------------------------
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: pgadmin
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: database  # 部署在与 CNPG 相同的数据库命名空间
+  
+  source:
+    repoURL: 'https://github.com/besthomelab/k3s-homelab-gitops.git'
+    targetRevision: HEAD
+    path: apps/pgadmin   # 指向存放清单的路径
+    directory:
+        # 🎯 赛博过滤网：排除所有包含 template 的文件
+        exclude: '*template*'
+        
+  syncPolicy:
+    automated:
+      enabled: true      # pgAdmin 属于基建工具，可以开启自动同步
+      prune: true
+      selfHeal: true
+      allowEmpty: false
+    syncOptions:
+      - CreateNamespace=true

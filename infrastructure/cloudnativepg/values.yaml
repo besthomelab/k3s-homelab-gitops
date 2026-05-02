@@ -1,0 +1,24 @@
+# --------------------------------------------------------
+# 🛠️ 赛博堡垒基础设施：CloudNativePG Operator 参数覆盖
+# 官方values地址 https://github.com/cloudnative-pg/charts/blob/main/charts/cloudnative-pg/values.yaml
+# --------------------------------------------------------
+
+# 1. 限制 Operator 自身的资源占用，防止内存泄漏影响宿主机
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
+
+# # 2. 监控与看板 (如果你的集群里部署了 Prometheus 和 Grafana)
+# monitoring:
+#   # 开启 Pod 监控采集
+#   podMonitorEnabled: true
+  
+#   grafanaDashboard:
+#     # 自动创建 Grafana Dashboard ConfigMap
+#     create: true
+#     # 注意：这里建议填入你实际 Grafana 所在的 namespace（比如 monitoring）
+#     namespace: "monitoring"

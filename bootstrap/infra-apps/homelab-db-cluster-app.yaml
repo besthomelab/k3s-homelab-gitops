@@ -1,0 +1,45 @@
+# --------------------------------------------------------
+# 🛠️ 赛博堡垒万能模版：CloudNativePG 数据库实例
+# --------------------------------------------------------
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: homelab-db-cluster
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: database  # 部署在专属的业务数据库命名空间
+  
+  sources:
+    # --- 源 1：官方 Cluster 图纸 ---
+    - repoURL: 'https://cloudnative-pg.github.io/charts'
+      chart: cluster
+      targetRevision: 0.6.0  # REPLACE_ME 请根据实际情况填入最新 Chart 版本 helm search repo cnpg/cluster --versions | head -n 5
+      helm:
+        valueFiles:
+          - $values/infrastructure/cloudnativepg/db-values.yaml
+
+    # --- 源 2：你的私有 Git 参数库 ---
+    - repoURL: 'https://github.com/besthomelab/k3s-homelab-gitops.git'
+      targetRevision: HEAD
+      path: infrastructure/cloudnativepg
+      ref: values
+
+  syncPolicy:
+    automated:
+      enabled: false
+      prune: false
+      selfHeal: false
+    syncOptions:
+      - CreateNamespace=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
+      refresh: true

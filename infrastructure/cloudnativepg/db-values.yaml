@@ -1,0 +1,66 @@
+# --------------------------------------------------------
+# 🛠️ 赛博堡垒数据中心：Helm Chart 版配置 (cnpg/cluster)
+# 官方values地址 https://github.com/cloudnative-pg/charts/blob/main/charts/cluster/values.yaml
+# --------------------------------------------------------
+type: postgresql
+version:
+  postgresql: "16" # REPLACE_ME 写上最新版本好
+
+# ==========================================
+# 🏢 集群核心配置 (注意缩进，都在 cluster 下)
+# ==========================================
+cluster:
+  instances: 2  # 一主一从
+
+  # 💾 存储配置
+  storage:
+    size: 5Gi # REPLACE_ME 根据磁盘大小调整数据库大小 官方默认8G 建议10G以上
+    storageClass: longhorn
+
+  # 📊 资源限制
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "512Mi"
+    limits:
+      cpu: "1000m"
+      memory: "1Gi"
+
+  # 🚀 初始化基座数据库
+  initdb:
+    database: shared_master_db
+    owner: postgres
+
+  # 🔑 1. 声明式创建用户 (Role)
+  roles:
+    # --- 当前生效用户 ---
+    - name: test_user      # 仅供测试跑通流程使用的用户
+      login: true
+    
+    # ----------------------------------------------------
+    # 💡 后续新增应用指南 (添加用户)：
+    # 1. 复制下方模版，取消注释
+    # 2. 将 'newapp_user' 替换为你的新应用名称 (例如: jellyfin_user)
+    # 3. K8s 会自动生成名为 <集群名>-newapp_user 的 Secret 存放密码
+    # ----------------------------------------------------
+    # - name: newapp_user
+    #   login: true
+
+
+# ==========================================
+# 🎯 2. 声明式创建数据库 (Database)
+# ⚠️ 注意！这是最顶层键值，和 cluster 平级！不能缩进进去！
+# ==========================================
+databases:
+  # --- 当前生效数据库 ---
+  - name: test_db          # 仅供测试跑通流程使用的数据库
+    owner: test_user       # 绑定所有权给上方创建的测试用户
+
+  # ----------------------------------------------------
+  # 💡 后续新增应用指南 (添加数据库)：
+  # 1. 复制下方模版，取消注释
+  # 2. 将 'newapp_db' 替换为你的新数据库名 (例如: jellyfin_db)
+  # 3. 将 owner 指向你在上方新建的那个用户
+  # ----------------------------------------------------
+  # - name: newapp_db
+  #   owner: newapp_user
