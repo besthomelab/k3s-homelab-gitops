@@ -36,6 +36,9 @@ cluster:
     # --- 当前生效用户 ---
     - name: test_user      # 仅供测试跑通流程使用的用户
       login: true
+      connectionLimit: -1	
+      ensure: present	
+      inherit: true
     
     # ----------------------------------------------------
     # 💡 后续新增应用指南 (添加用户)：
