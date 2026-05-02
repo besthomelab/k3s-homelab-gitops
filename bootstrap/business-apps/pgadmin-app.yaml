@@ -24,9 +24,9 @@ spec:
         
   syncPolicy:
     automated:
-      enabled: true      # pgAdmin 属于基建工具，可以开启自动同步
-      prune: true
-      selfHeal: true
+      enabled: false     
+      prune: false
+      selfHeal: false
       allowEmpty: false
     syncOptions:
       - CreateNamespace=true
