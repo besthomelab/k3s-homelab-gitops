@@ -21,7 +21,7 @@ spec:
         fsGroup: 5050    # 关键：修复卷权限挂载问题
       containers:
       - name: pgadmin
-        image: dpage/pgadmin4:8.14  # 最新版本
+        image: dpage/pgadmin4:8.14  # 指定版本
         ports:
         - containerPort: 80
         env:
