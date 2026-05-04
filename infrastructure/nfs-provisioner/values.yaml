@@ -3,7 +3,7 @@
 # -------------------------------------------------------------------------
 nfs:
   # ⚠️ 必须修改为你实际物理 NAS 的情报
-  server: 10.0.0.50       # REPLACE_ME -> 替换为你的 TrueNAS/群晖 IP 地址
+  server: 10.0.10.10       # REPLACE_ME -> 替换为你的 TrueNAS/群晖 IP 地址
   path: /mnt/nfs          # REPLACE_ME -> 替换为 NAS 上暴露的绝对共享路径
 
 storageClass:
