@@ -35,8 +35,6 @@ spec:
           value: "Asia/Shanghai"
         - name: WEBUI_PORT
           value: "8080"
-        - name: TORRENTING_PORT  
-          value: "6881"
         volumeMounts:
         - name: config
           mountPath: /config
