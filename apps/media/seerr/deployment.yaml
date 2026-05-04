@@ -15,6 +15,10 @@ spec:
       labels:
         app: seerr
     spec:
+      securityContext:
+        fsGroup: 1000
+        runAsUser: 1000
+        runAsGroup: 1000
       containers:
       - name: seerr
         image: ghcr.io/seerr-team/seerr:latest
