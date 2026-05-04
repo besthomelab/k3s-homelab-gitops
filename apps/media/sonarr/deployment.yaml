@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sonarr
+  namespace: media
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: sonarr
+  template:
+    metadata:
+      labels:
+        app: sonarr
+    spec:
+      containers:
+      - name: sonarr
+        image: lscr.io/linuxserver/sonarr:latest
+        ports:
+        - containerPort: 8989
+        env:
+        - name: PUID
+          value: "1000"
+        - name: PGID
+          value: "1000"
+        - name: TZ
+          value: "Asia/Shanghai"
+        # --- Postgres 数据库配置 ---
+        - name: SONARR__POSTGRES__HOST
+          value: "homelab-db-cluster-rw.database"
+        - name: SONARR__POSTGRES__PORT
+          value: "5432"
+        - name: SONARR__POSTGRES__USER
+          value: "sonarr_user"
+        - name: SONARR__POSTGRES__PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: media-db-secret
+              key: postgres-password
+        - name: SONARR__POSTGRES__MAIN_DB
+          value: "sonarr-main"
+        - name: SONARR__POSTGRES__LOG_DB
+          value: "sonarr-log"
+        volumeMounts:
+        - name: config
+          mountPath: /config
+        - name: data
+          mountPath: /media
+      volumes:
+      - name: config
+        persistentVolumeClaim:
+          claimName: sonarr-config-pvc
+      - name: data
+        nfs:
+          server: 10.0.0.50      #   REPLACE_ME 提交成自己的nfs共享的ip地址
+          path: /mnt/nfs/media  # REPLACE_ME 提交成自己的nfs共享的media目录 

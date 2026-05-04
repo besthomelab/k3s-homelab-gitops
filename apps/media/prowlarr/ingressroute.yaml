@@ -1,0 +1,15 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: prowlarr-tls
+  namespace: media
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`prowlarr.k3s.besthomelab.tech`)
+      kind: Rule
+      services:
+        - name: prowlarr-service
+          port: 9696
+  tls: {}

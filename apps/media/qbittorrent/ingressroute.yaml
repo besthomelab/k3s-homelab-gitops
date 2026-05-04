@@ -1,0 +1,15 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: qb-tls
+  namespace: media
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`qb.k3s.besthomelab.tech`)
+      kind: Rule
+      services:
+        - name: qb-service
+          port: 8080
+  tls: {}

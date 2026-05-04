@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: qbittorrent
+  namespace: media
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: qbittorrent
+  template:
+    metadata:
+      labels:
+        app: qbittorrent
+    spec:
+      containers:
+      - name: qbittorrent
+        image: lscr.io/linuxserver/qbittorrent:latest
+        ports:
+        - containerPort: 8080
+          name: webui
+        - containerPort: 6881
+          name: bt-tcp
+        - containerPort: 6881
+          name: bt-udp
+          protocol: UDP
+        env:
+        - name: PUID
+          value: "1000"
+        - name: PGID
+          value: "1000"
+        - name: TZ
+          value: "Asia/Shanghai"
+        - name: WEBUI_PORT
+          value: "8080"
+        - name: TORRENTING_PORT  
+          value: "6881"
+        volumeMounts:
+        - name: config
+          mountPath: /config
+        - name: data
+          mountPath: /media 
+      volumes:
+      - name: config
+        persistentVolumeClaim:
+          claimName: qb-config-pvc
+      - name: data
+        nfs:
+          server: 10.0.0.50    #   REPLACE_ME 提交成自己的nfs共享的ip地址
+          path: /mnt/nfs/media  # REPLACE_ME 提交成自己的nfs共享的media目录 

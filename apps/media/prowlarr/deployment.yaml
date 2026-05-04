@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prowlarr
+  namespace: media
+  labels:
+    app: prowlarr
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: prowlarr
+  template:
+    metadata:
+      labels:
+        app: prowlarr
+    spec:
+      containers:
+      - name: prowlarr
+        image: lscr.io/linuxserver/prowlarr:latest
+        ports:
+        - containerPort: 9696
+        env:
+        - name: PUID
+          value: "1000"
+        - name: PGID
+          value: "1000"
+        - name: TZ
+          value: "Asia/Shanghai"
+        # --- Postgres 数据库配置 ---
+        - name: PROWLARR__POSTGRES__HOST
+          value: "homelab-db-cluster-rw.database"
+        - name: PROWLARR__POSTGRES__PORT
+          value: "5432"
+        - name: PROWLARR__POSTGRES__USER
+          value: "prowlarr_user" 
+        - name: PROWLARR__POSTGRES__PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: media-db-secret
+              key: postgres-password
+        - name: PROWLARR__POSTGRES__MAIN_DB
+          value: "prowlarr-main"
+        - name: PROWLARR__POSTGRES__LOG_DB
+          value: "prowlarr-log"
+        volumeMounts:
+        - name: config
+          mountPath: /config
+        - name: data
+          mountPath: /media
+      volumes:
+      - name: config
+        persistentVolumeClaim:
+          claimName: prowlarr-config-pvc
+      - name: data
+        nfs:
+          server: 10.0.0.50 #   REPLACE_ME 提交成自己的nfs共享的ip地址
+          path: /mnt/nfs/media # REPLACE_ME 提交成自己的nfs共享的media目录 

@@ -1,0 +1,30 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: servarr-media-stack
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: media
+  
+  source:
+    repoURL: 'https://github.com/besthomelab/k3s-homelab-gitops.git'
+    targetRevision: HEAD
+    path: apps/media   # 指向存放清单的路径
+    directory:
+        # 🎯 赛博过滤网：排除所有包含 template 的文件
+        exclude: '*template*'
+        recurse: true
+        
+  syncPolicy:
+    automated:
+      enabled: false     
+      prune: false
+      selfHeal: false
+      allowEmpty: false
+    syncOptions:
+      - CreateNamespace=true

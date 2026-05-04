@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: radarr
+  namespace: media
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: radarr
+  template:
+    metadata:
+      labels:
+        app: radarr
+    spec:
+      containers:
+      - name: radarr
+        image: lscr.io/linuxserver/radarr:latest
+        ports:
+        - containerPort: 7878
+        env:
+        - name: PUID
+          value: "1000"
+        - name: PGID
+          value: "1000"
+        - name: TZ
+          value: "Asia/Shanghai"
+        # --- Postgres 数据库配置 ---
+        - name: RADARR__POSTGRES__HOST
+          value: "homelab-db-cluster-rw.database"
+        - name: RADARR__POSTGRES__PORT
+          value: "5432"
+        - name: RADARR__POSTGRES__USER
+          value: "radarr_user" 
+        - name: RADARR__POSTGRES__PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: media-db-secret
+              key: postgres-password
+        - name: RADARR__POSTGRES__MAIN_DB
+          value: "radarr-main"
+        - name: RADARR__POSTGRES__LOG_DB
+          value: "radarr-log"
+        volumeMounts:
+        - name: config
+          mountPath: /config
+        - name: data
+          mountPath: /media
+      volumes:
+      - name: config
+        persistentVolumeClaim:
+          claimName: radarr-config-pvc
+      - name: data
+        nfs:
+          server: 10.0.0.50    #   REPLACE_ME 提交成自己的nfs共享的ip地址
+          path: /mnt/nfs/media # REPLACE_ME 提交成自己的nfs共享的media目录 

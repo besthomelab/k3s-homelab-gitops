@@ -1,0 +1,15 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: radarr-tls
+  namespace: media
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`radarr.k3s.besthomelab.tech`)
+      kind: Rule
+      services:
+        - name: radarr-service
+          port: 7878
+  tls: {}

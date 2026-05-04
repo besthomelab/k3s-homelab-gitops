@@ -1,0 +1,79 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jellyfin
+  namespace: media
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: jellyfin
+  template:
+    metadata:
+      labels:
+        app: jellyfin
+    spec:
+      containers:
+      - name: jellyfin
+        image: jellyfin/jellyfin:latest
+        env:
+        - name: TZ
+          value: "Asia/Shanghai"
+        - name: JELLYFIN_PublishedServerUrl
+          value: "jellyfin.k3s.besthomelab.tech" # 👈 用于客户端识别的外部地址
+        ports:
+        - containerPort: 8096
+          name: http
+        - containerPort: 7359
+          name: discovery
+          protocol: UDP # 👈 官方文档提示的自动发现端口
+        # resources:
+        #   limits:
+        #     cpu: "2"
+        #     memory: 4Gi
+        #   requests:
+        #     cpu: 500m
+        #     memory: 512Mi
+        securityContext:
+          privileged: true # 👈 官方 Helm 提示的硬件加速必备特权
+        
+        # 👇 官方 Helm 提取的健康探针，保障高可用
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8096
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8096
+          initialDelaySeconds: 15
+          periodSeconds: 5
+
+        volumeMounts:
+        - name: config
+          mountPath: /config
+        - name: cache
+          mountPath: /cache # 👈 官方建议隔离的缓存目录
+        - name: data
+          mountPath: /media # 👈 和 Arr 流水线保持绝对一致的媒体路径
+        - name: gpu-device
+          mountPath: /dev/dri # 👈 核显硬件加速挂载
+      
+      volumes:
+      - name: config
+        persistentVolumeClaim:
+          claimName: jellyfin-config-pvc
+      - name: cache
+        emptyDir: {} # 👈 K8s：使用节点本地存储作为高性能临时缓存，重启清空不心疼
+      - name: data
+        nfs:
+          server: 10.0.0.50  #   REPLACE_ME 提交成自己的nfs共享的ip地址
+          path: /mnt/nfs/media # REPLACE_ME 提交成自己的nfs共享的media目录 
+      - name: gpu-device
+        hostPath:
+          path: /dev/dri
+          type: DirectoryOrCreate
