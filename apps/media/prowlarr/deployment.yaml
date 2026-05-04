@@ -56,5 +56,5 @@ spec:
           claimName: prowlarr-config-pvc
       - name: data
         nfs:
-          server: 10.0.0.50 #   REPLACE_ME 提交成自己的nfs共享的ip地址
+          server: 10.0.10.10 #   REPLACE_ME 提交成自己的nfs共享的ip地址
           path: /mnt/nfs/media # REPLACE_ME 提交成自己的nfs共享的media目录 

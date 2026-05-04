@@ -71,7 +71,7 @@ spec:
         emptyDir: {} # 👈 K8s：使用节点本地存储作为高性能临时缓存，重启清空不心疼
       - name: data
         nfs:
-          server: 10.0.0.50  #   REPLACE_ME 提交成自己的nfs共享的ip地址
+          server: 10.0.10.10  #   REPLACE_ME 提交成自己的nfs共享的ip地址
           path: /mnt/nfs/media # REPLACE_ME 提交成自己的nfs共享的media目录 
       - name: gpu-device
         hostPath:
