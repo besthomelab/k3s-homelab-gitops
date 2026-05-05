@@ -7,7 +7,7 @@ preUpgradeChecker:
 
 defaultSettings:
   # 【核心策略】默认 3 副本，完美匹配 3 节点高可用物理集群
-  defaultReplicaCount: 3
+  defaultReplicaCount: 2
   # 【硬盘防爆】宿主机物理硬盘剩余空间低于 15% 时强制停止写入，防止节点瘫痪
   storageMinimalAvailablePercentage: 15
   # 【静默运行】关闭自带的升级检查，所有版本升降级统一交由 GitOps/ArgoCD 掌管
