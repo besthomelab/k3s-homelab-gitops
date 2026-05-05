@@ -5,6 +5,12 @@
 preUpgradeChecker:
   jobEnabled: false
 
+persistence:
+  defaultClass: true             # 将其设为集群的默认存储类
+  defaultFsType: ext4            # 默认文件系统
+  defaultClassReplicaCount: 2    # 配合你的三台 master 节点，一式三份最安全
+  reclaimPolicy: Delete          # 【防遗留开关1】删除 PVC 时，同步删除底层 PV 记录
+
 defaultSettings:
   # 【核心策略】默认 3 副本，完美匹配 3 节点高可用物理集群
   defaultReplicaCount: 2
@@ -12,6 +18,9 @@ defaultSettings:
   storageMinimalAvailablePercentage: 15
   # 【静默运行】关闭自带的升级检查，所有版本升降级统一交由 GitOps/ArgoCD 掌管
   upgradeChecker: false
+  orphanAutoDeletion: true
+  createDefaultDiskLabeledNodes: true
+  fastReplicaRebuildEnabled: true
 
 service:
   ui:
