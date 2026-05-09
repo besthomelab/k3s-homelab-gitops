@@ -1,0 +1,32 @@
+apiVersion: "k8s.cni.cncf.io/v1"
+kind: NetworkAttachmentDefinition
+metadata:
+  name: macvlan-direct
+  namespace: media  # 必须替换为你的应用所在的 namespace
+spec:
+  # ⚠️ 核心提醒：下方 config 内的字符串会被解析为纯 JSON，绝对不能包含 '#' 注释。
+  # 所有的关键备注已经为你提取到此处，请根据这些提示修改下方 JSON 对应的值：
+  # 
+  # 1. master:      根据上方 VLAN 说明，替换为 eth0 或 eth0.10
+  # 2. subnet:      10.0.10.0/24 (VLAN 10 的真实网段)
+  # 3. rangeStart:  10.0.10.101 (为 Pod 分配的静态独立 IP)
+  # 4. rangeEnd:    10.0.10.101 (与 rangeStart 保持一致)
+  # 5. gateway:     10.0.10.1 (VLAN 10 的网关，通常是 OPNsense 的地址)
+  
+  config: |
+    {
+        "cniVersion": "0.3.1",
+        "type": "macvlan",
+        "master": "enp6s18",
+        "mode": "bridge",
+        "ipam": {
+            "type": "host-local",
+            "subnet": "10.0.10.0/24",
+            "rangeStart": "10.0.10.5",
+            "rangeEnd": "10.0.10.5",
+            "gateway": "10.0.10.1",
+            "routes": [
+                { "dst": "0.0.0.0/0", "gw": "10.0.10.1" }
+            ]
+        }
+    }
