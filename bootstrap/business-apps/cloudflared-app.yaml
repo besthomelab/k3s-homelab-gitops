@@ -25,7 +25,7 @@ spec:
   # =======================================================================
   syncPolicy:
     automated:
-      enabled: false      # 【总开关】开启全自动驾驶
+      enabled: true      # 【总开关】开启全自动驾驶
       prune: true        # 【自动拆除】Git 删则 K8s 删
       selfHeal: true     # 【自我修复】自动纠正面板被误改的配置
       allowEmpty: false  # 【核爆保护】禁止清空集群
