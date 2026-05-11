@@ -37,11 +37,3 @@ spec:
           limits:
             cpu: 200m
             memory: 256Mi
-        # 增加存活探针，确保隧道连接假死时能自动重启
-        livenessProbe:
-          httpGet:
-            path: /ready
-            port: 2000
-          failureThreshold: 1
-          initialDelaySeconds: 10
-          periodSeconds: 10
