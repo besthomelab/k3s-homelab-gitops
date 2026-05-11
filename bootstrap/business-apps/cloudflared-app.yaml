@@ -17,7 +17,7 @@ spec:
       path: apps/cloudflared  # 存放云探针具体 YAML 的路径
       directory:
           # 🎯 赛博过滤网：排除所有包含 template 的文件
-          # 确保 ArgoCD 只加载加密后的 SealedSecret 和 Deployment
+          # 确保 ArgoCD 只加载加密后的 SealedSecret 和 Deployment 
           exclude: '*template*'
 
   # =======================================================================
