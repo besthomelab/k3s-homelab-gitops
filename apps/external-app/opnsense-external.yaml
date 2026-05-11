@@ -7,8 +7,8 @@ metadata:
 spec:
   ports:
     - protocol: TCP
-      port: 443       # Service 暴露在 K8s 内部的端口
-      targetPort: 443 # OPNsense 实际监听的端口 (通常 HTTPS 是 443)
+      port: 8443       # Service 暴露在 K8s 内部的端口
+      targetPort: 8443 # OPNsense 实际监听的端口 (通常 HTTPS 是 443)
 
 ---
 # 2. 定义同名 Endpoints，填入真实物理 IP
@@ -21,7 +21,7 @@ subsets:
   - addresses:
       - ip: 10.0.0.1      # REPLACE_ME OPNsense 的真实物理 IP
     ports:
-      - port: 443
+      - port: 8443
 
 ---
 # 3. Traefik 路由规则
@@ -38,6 +38,6 @@ spec:
       kind: Rule
       services:
         - name: opnsense-external
-          port: 443
+          port: 8443
           scheme: https   # 关键：目标是 HTTPS 服务必须写明
   tls: {}
