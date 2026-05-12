@@ -15,6 +15,11 @@ deployment:
 
 ports:
   web:
+   # 🚨 新增：信任网关IP，接受外部的 X-Forwarded-Proto 标头，打破重定向死循环！
+    forwardedHeaders:
+      trustedIPs:
+        - "10.0.0.0/16"       # 包含你 OPNsense 的局域网段
+
     http:
       redirections:
         entryPoint:
