@@ -19,7 +19,8 @@ ports:
     forwardedHeaders:
       trustedIPs:
         - "10.0.0.0/16"       # 包含你 OPNsense 的局域网段
-
+        - "192.168.0.0/16"
+        
     http:
       redirections:
         entryPoint:
